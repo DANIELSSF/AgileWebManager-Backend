@@ -14,6 +14,11 @@ dbConnection();
 // Parse json objects
 app.use(express.json())
 
+
+//Routes
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/todos", require("./routes/todos"));
+
 app.listen(process.env.PORT, ()=>{
     console.log(`Server is running in the port: ${process.env.PORT}`);
 })
