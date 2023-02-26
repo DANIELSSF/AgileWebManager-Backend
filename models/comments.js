@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose');
 
-const CommentsSchema = Schema = ({
+const CommentsSchema = Schema ({
     comment: {
         type: String,
     },
