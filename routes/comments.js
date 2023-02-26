@@ -1,5 +1,5 @@
 /*
-    Todo Routes
+    Comments Routes
     /api/todos
 */
 const { Router } = require("express");
@@ -7,22 +7,17 @@ const router = Router();
 
 router.get(
     "/",
-    getTodos //TODO: Get all Todos
+    getComments //TODO: Get all Comments
 );
 
 router.post(
   "/",
-  createTodo //TODO: create Todo
-);
-
-router.put(
-  "/:id",
-  UpdateTodo //TODO: Update Todo
+  createComment //TODO: create Comment
 );
 
 router.delete(
     "/:id",
-    deleteTodo //TODO: Delete Todo
+    deleteComment //TODO: Delete Comment
 );
 
 
