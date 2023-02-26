@@ -7,10 +7,11 @@ const CommentsSchema = Schema = ({
     creator: {
         type: Schema.Types.ObjectId,
         ref: 'User',
+        required: true,
     },
     date: {
         type: Date,
-        require: true,
+        required: true,
     },
 
 });
