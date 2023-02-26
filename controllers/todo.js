@@ -1,5 +1,5 @@
 const { response, request } = require('express');
-const Todos = require('../models/Todos');
+const Todos = require('../models/todos');
 
 const getTodos = async (req, res = response) => {
 
