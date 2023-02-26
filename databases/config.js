@@ -5,9 +5,9 @@ const dbConnection = async () => {
     mongoose.set('strictQuery', true);
     try {
         await mongoose.connect(process.env.DB_CNN);
-        console.log('Conectado a la BD')
+        console.log('Connected to the DB')
     } catch (error) {
-        throw new Error('No se pudo acceder a la base de datos');
+        throw new Error('Unable to access the database');
         console.log(error);
     }
 }
