@@ -51,12 +51,12 @@ const deleteTable = async (req, res = response) => {
     const todoIds = table.todos;
 
     await Table.findByIdAndDelete(tableId);
-
     await Todo.deleteMany({ _id: { $in: todoIds } });
 
     res.status(200).json({
       ok: true,
     });
+
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -88,8 +88,9 @@ const editTable = async (req = request, res = response) => {
 
     res.json({
       ok: true,
-      evento: tableUpdate,
+      table: tableUpdate,
     });
+
   } catch (error) {
     console.log(error);
     res.status(500).json({
