@@ -1,14 +1,14 @@
 const mongoose = require('mongoose');
 
 const dbConnection = async () => {
-//  asegura de que todas las consultas estén limitadas a las claves definidas en el esquema
+//  ensures that all queries are restricted to the keys defined in the schema
     mongoose.set('strictQuery', true);
     try {
 
         await mongoose.connect(process.env.DB_CNN);
-        console.log('Conectado a la BD')
+        console.log('Connected to the DB')
     } catch (error) {
-        throw new Error('No se pudo acceder a la base de datos');
+        throw new Error('Unable to access the database');
         console.log(error);
     }
 }
