@@ -4,7 +4,7 @@ const User = require("../models/User");
 
 const createUser = async (req, res = response) => {
   const { email, password } = req.body;
-  
+
   try {
     let user = await User.findOne({ email });
 
@@ -16,7 +16,7 @@ const createUser = async (req, res = response) => {
     }
 
     user = new User(req.body);
-    user.status = "new"
+    user.status = "new";
 
     console.log(user);
 
@@ -39,6 +39,23 @@ const createUser = async (req, res = response) => {
   }
 };
 
+const getUsers = async (req = request, res = response) => {
+    try {
+      const users = await User.find();
+      return res.status(200).json({
+        ok: true,
+        users
+      });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+          ok: false,
+          msg: "Please speak to the administrator",
+        });
+      }
+  };
+
 module.exports = {
   createUser,
+  getUsers
 };
