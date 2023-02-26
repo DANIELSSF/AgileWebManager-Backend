@@ -1,6 +1,6 @@
 /*
-    toutes users / Auth
-    host + /api/auth
+    Users Routes
+    /api/auth
 */
 const { Router } = require("express");
 const router = Router();
@@ -25,10 +25,9 @@ router.put(
     editUser //TODO: Get all users
 );
 
-
 router.delete(
     "/:id",
-    deleteUser //TODO: Get all users
+    deleteUser //TODO: Delete Todo
 );
 
 
