@@ -2,16 +2,16 @@ const express = require('express');
 const { dbConnection } = require('./databases/config');
 require('dotenv').config();
 
-// Crear servidor de express
+// Create express server
 const app = express();
 
-// Directorio publico
+// Public directory
 app.use(express.static('public'));
 
-// Conexion a la base de datos
+// Database connecion
 dbConnection();
 
-// Parsear objetos de json
+// Parse json objects
 app.use(express.json())
 
 app.listen(process.env.PORT, ()=>{
