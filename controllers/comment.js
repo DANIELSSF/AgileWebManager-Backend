@@ -1,11 +1,22 @@
 const { response } = require('express');
-const Comment = require('../models/Comments');
+const Comment = require('../models/comments');
+const Todos = require('../models/Todos');
 
 const createComment = async (req, res = response) => {
-    const comment = new Comment(req.body);
+    const { todoId, comment } = req.body;
 
     try {
-        const commentSaved = await comment.save();
+        const newComment = new Comment({
+            comment,
+            date: new Date(),
+            creator: req.uid,
+        });
+        const commentSaved = await newComment.save();
+
+        const todo = await Todos.findById(todoId);
+        todo.comments.push(commentSaved._id);
+        await todo.save();
+
 
         res.status(201).json({
             ok: true,
