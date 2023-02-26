@@ -73,7 +73,7 @@ const deleteUser = async (req, res = response) => {
     res.status(200).json({
       ok: true,
     });
-    
+
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -122,7 +122,6 @@ const loginUser = async (req, res = response) => {
   const { email, password } = req.body;
 
   try {
-
     let user = await User.findOne({ email });
 
     if (!user || !bcrypt.compareSync(password, user.password)) {
@@ -132,10 +131,16 @@ const loginUser = async (req, res = response) => {
       });
     };
 
+    if (user.status === "new") {
+      user.status = "member";
+      await user.save();
+    }
+
     return res.status(200).json({
       ok: true,
       uid: user.id,
       name: user.name,
+      status: user.status,
     });
 
   } catch (error) {
