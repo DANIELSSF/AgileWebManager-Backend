@@ -39,23 +39,51 @@ const createUser = async (req, res = response) => {
   }
 };
 
-const getUsers = async (req = request, res = response) => {
+const getUsers = async (req, res = response) => {
+  try {
+    const users = await User.find();
+    return res.status(200).json({
+      ok: true,
+      users,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Please speak to the administrator",
+    });
+  }
+};
+
+
+const deleteUser = async (req, res = response) => {
+    const userId = req.params.id;
     try {
-      const users = await User.find();
-      return res.status(200).json({
-        ok: true,
-        users
-      });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
+      const user = await Event.findById(userId);
+  
+      if (!user) {
+        return res.status(404).json({
           ok: false,
-          msg: "Please speak to the administrator",
+          msg: "no user with this id was found",
         });
       }
+
+      await User.findByIdAndDelete(userId);
+  
+      res.status(200).json({
+        ok: true,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        ok: false,
+        msg: "Talk to the administrator",
+      });
+    }
   };
 
 module.exports = {
   createUser,
-  getUsers
+  getUsers,
+  deleteUser,
 };
