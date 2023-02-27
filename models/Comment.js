@@ -1,16 +1,17 @@
 const { Schema, model } = require('mongoose');
 
-const CommentsSchema = Schema = ({
+const CommentsSchema = Schema ({
     comment: {
         type: String,
     },
     creator: {
         type: Schema.Types.ObjectId,
         ref: 'User',
+        required: true,
     },
     date: {
         type: Date,
-        require: true,
+        required: true,
     },
 
 });
