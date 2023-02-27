@@ -1,6 +1,7 @@
 const { response, request } = require('express');
 const Todo = require('../models/Todo');
 const Table = require('../models/Table');
+const Comment = require('../models/Comment');
 
 const getTodos = async (req, res = response) => {
 
@@ -93,10 +94,15 @@ const deleteTodo = async (req, res = response) => {
             });
         };
 
-        const commentIds = todo.comments;
+        const comments = todo.comments;
+
+        if (comments) {
+            comments.forEach(async (comment) => {
+              await Comment.findByIdAndDelete(comment);
+            });
+          }
 
         await Todo.findByIdAndDelete(todoId);
-        await Todo.deleteMany({ _id: { $in: commentIds } });
 
         res.status(201).json({
             ok: true,
