@@ -59,7 +59,7 @@ const getUsers = async (req, res = response) => {
 const deleteUser = async (req, res = response) => {
   const userId = req.params.id;
   try {
-    const user = await Event.findById(userId);
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -88,7 +88,7 @@ const updateUser = async (req = request, res = response) => {
   const userId = req.params.id;
 
   try {
-    let user = await Event.findById(userId);
+    let user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
@@ -99,6 +99,7 @@ const updateUser = async (req = request, res = response) => {
 
     const newUser = {
       ...req.body,
+      password:user.password
     };
 
     const updatedUser = await User.findByIdAndUpdate(userId, newUser, { new: true });

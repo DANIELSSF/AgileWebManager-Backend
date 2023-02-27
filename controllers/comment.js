@@ -37,6 +37,7 @@ const createComment = async (req, res = response) => {
       msg: "Contact the administrator",
     });
   }
+
 };
 
 const getComments = async (req, res = response) => {

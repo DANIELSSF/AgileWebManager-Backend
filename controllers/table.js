@@ -1,9 +1,10 @@
 const { response, request } = require("express");
 const Table = require("../models/Table");
+const Todo = require("../models/Todo");
 
 const getTables = async (req, res = response) => {
   try {
-    const tables = await Table.find().populate("todo", "name status");
+    const tables = await Table.find();
     return res.status(200).json({
       ok: true,
       tables,
@@ -21,6 +22,7 @@ const createTable = async (req, res = response) => {
   const table = new Table(req.body);
   try {
     table.todo = [];
+    table.date = new Date();
     const tableSaved = await table.save();
 
     res.status(201).json({
@@ -48,15 +50,18 @@ const deleteTable = async (req, res = response) => {
       });
     }
 
-    const todoIds = table.todos;
+    const todos = table.todo;
 
+    if (todos) {
+      todos.forEach(async (todo) => {
+        await Todo.findByIdAndDelete(todo);
+      });
+    }
     await Table.findByIdAndDelete(tableId);
-    await Todo.deleteMany({ _id: { $in: todoIds } });
 
     res.status(200).json({
       ok: true,
     });
-    
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -90,7 +95,6 @@ const updateTable = async (req = request, res = response) => {
       ok: true,
       table: tableUpdate,
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
