@@ -99,6 +99,7 @@ const updateUser = async (req = request, res = response) => {
 
     const newUser = {
       ...req.body,
+      password:user.password
     };
 
     const updatedUser = await User.findByIdAndUpdate(userId, newUser, { new: true });
