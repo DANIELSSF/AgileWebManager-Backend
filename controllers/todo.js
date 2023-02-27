@@ -1,9 +1,10 @@
 const { response, request } = require('express');
-const Todos = require('../models/todos');
+const Todo = require('../models/Todo');
+const Table = require('../models/Table');
 
 const getTodos = async (req, res = response) => {
 
-    const todos = await Todos.find().populate("comments");
+    const todos = await Todo.find().populate("comments");
 
     try {
         res.status(200).json({
@@ -22,11 +23,17 @@ const getTodos = async (req, res = response) => {
 
 const createTodos = async (req, res = response) => {
 
-    const todo = new Todos(req.body);
+    const { tableId, todo } = req.body;
 
     try {
+
+        const newTodo = new Todo({ todo });
         todo.comments = [];
         const todoSaved = await todo.save();
+
+        const table = await Table.findById(tableId);
+        table.todo.push(todoSaved._id);
+        await table.save();
 
         res.status(201).json({
             ok: true,
@@ -45,7 +52,7 @@ const editTodo = async (req = request, res = response) => {
     const todoId = req.params.id;
 
     try {
-        const todo = await Todos.findById(todoId);
+        const todo = await Todo.findById(todoId);
 
         if (!todo) {
             return res.status(404).json({
@@ -58,7 +65,7 @@ const editTodo = async (req = request, res = response) => {
             ...req.body,
         }
 
-        const updateTodo = await Todos.findByIdAndUpdate(todoId, newTodo, ({ new: true }));
+        const updateTodo = await Todo.findByIdAndUpdate(todoId, newTodo, ({ new: true }));
 
         res.status(200).json({
             ok: true,
@@ -77,7 +84,7 @@ const deleteTodo = async (req, res = response) => {
     const todoId = req.params.id;
 
     try {
-        const todo = await Todos.findById(todoId);
+        const todo = await Todo.findById(todoId);
         if (!todo) {
             return res.status(404).json({
                 ok: false,
@@ -87,8 +94,8 @@ const deleteTodo = async (req, res = response) => {
 
         const commentIds = todo.comments;
 
-        await Todos.findByIdAndDelete(todoId);
-        await Todos.deleteMany({ _id: { $in: commentIds } });
+        await Todo.findByIdAndDelete(todoId);
+        await Todo.deleteMany({ _id: { $in: commentIds } });
 
         res.status(201).json({
             ok: true,
