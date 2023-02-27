@@ -21,12 +21,14 @@ const createTable = async (req, res = response) => {
   const table = new Table(req.body);
   try {
     table.todo = [];
+    table.date = new Date();
     const tableSaved = await table.save();
 
     res.status(201).json({
       ok: true,
       event: tableSaved,
     });
+
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -56,7 +58,7 @@ const deleteTable = async (req, res = response) => {
     res.status(200).json({
       ok: true,
     });
-    
+
   } catch (error) {
     console.log(error);
     res.status(500).json({
