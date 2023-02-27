@@ -1,10 +1,11 @@
 const { response, request } = require('express');
 const Todo = require('../models/Todo');
 const Table = require('../models/Table');
+const Comment = require('../models/Comment');
 
 const getTodos = async (req, res = response) => {
 
-    const todos = await Todo.find().populate("comments");
+    const todos = await Todo.find();
 
     try {
         res.status(200).json({
@@ -23,13 +24,21 @@ const getTodos = async (req, res = response) => {
 
 const createTodos = async (req, res = response) => {
 
-    const { tableId, todo } = req.body;
+    const { tableId, ...todo } = req.body;
+
+    if(!tableId){
+        return res.status(404).json({
+            ok:false,
+            msg:"Id table not found.",
+        });
+    }
 
     try {
 
-        const newTodo = new Todo({ todo });
-        todo.comments = [];
-        const todoSaved = await todo.save();
+        const newTodo = new Todo({ ...todo });
+        newTodo.comments = [];
+        newTodo.date = new Date();
+        const todoSaved = await newTodo.save();
 
         const table = await Table.findById(tableId);
         table.todo.push(todoSaved._id);
@@ -92,10 +101,15 @@ const deleteTodo = async (req, res = response) => {
             });
         };
 
-        const commentIds = todo.comments;
+        const comments = todo.comments;
+
+        if (comments) {
+            comments.forEach(async (comment) => {
+              await Comment.findByIdAndDelete(comment);
+            });
+          }
 
         await Todo.findByIdAndDelete(todoId);
-        await Todo.deleteMany({ _id: { $in: commentIds } });
 
         res.status(201).json({
             ok: true,
