@@ -3,58 +3,65 @@ const Comment = require('../models/Comment');
 const Todos = require('../models/Todo');
 
 const createComment = async (req, res = response) => {
-    const { creatorId, todoId, ...comment } = req.body;
-    // valdiar todoId
+  const { todoId, comment } = req.body;
 
-    try {
-        const newComment = new Comment({
-            ...comment,
-            date: new Date(),
-            creator: creatorId,
-        });
-        const commentSaved = await newComment.save();
+  if (!todoId) {
+    return res.status(404).json({
+      ok: false,
+      msg: "Id todo not found",
+    });
+  };
 
-        const todo = await Todos.findById(todoId);
-        todo.comments.push(commentSaved._id);
-        await todo.save();
+  try {
+    const newComment = new Comment({
+      comment,
+      date: new Date(),
+      creator: req.uid,
+    });
+    const commentSaved = await newComment.save();
+
+    const todo = await Todos.findById(todoId);
+    todo.comments.push(commentSaved._id);
+    await todo.save();
 
 
-        res.status(201).json({
-            ok: true,
-            comment: commentSaved,
-        });
+    res.status(201).json({
+      ok: true,
+      comment: commentSaved,
+    });
 
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            ok: false,
-            msg: "Contact the administrator",
-        });
-    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: "Contact the administrator",
+    });
+  }
+
 };
 
-const getComments = async (req,res = response) =>{
-    
-    const comments = await Comment.find().populate("creator", "name");
+const getComments = async (req, res = response) => {
 
-    try {
-        res.status(200).json({
-            ok: true,
-            comments,
-        });
+  const comments = await Comment.find().populate("creator", "name");
 
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            ok: false,
-            msg: "Contact the administrator",
-        });
-    }
+  try {
+    res.status(200).json({
+      ok: true,
+      comments,
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: "Contact the administrator",
+    });
+  }
 }
 
 
-const deleteComment = async (req,res = response) =>{
-    const commentId = req.params.id;
+const deleteComment = async (req, res = response) => {
+  const commentId = req.params.id;
   try {
     const comment = await Comment.findById(commentId);
 
@@ -81,7 +88,7 @@ const deleteComment = async (req,res = response) =>{
 }
 
 module.exports = {
-    createComment,
-    deleteComment,
-    getComments
+  createComment,
+  deleteComment,
+  getComments
 }

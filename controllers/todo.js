@@ -26,6 +26,14 @@ const createTodos = async (req, res = response) => {
 
     const { tableId, ...todo } = req.body;
 
+    if(!tableId){
+        return res.status(404).json({
+            ok:false,
+            msg:"Id table not found.",
+        });
+    }
+
+
     try {
 
         const newTodo = new Todo({ ...todo });
