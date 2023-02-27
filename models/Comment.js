@@ -16,7 +16,7 @@ const CommentsSchema = Schema ({
 
 });
 
-EventsSchema.method('toJSON', function () {
+CommentsSchema.method('toJSON', function () {
     const { __v, _id, ...object } = this.toObject();
 
     object.id = _id;
