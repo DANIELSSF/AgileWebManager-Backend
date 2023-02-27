@@ -53,6 +53,8 @@ const createTodos = async (req, res = response) => {
 const updateTodo = async (req = request, res = response) => {
     const todoId = req.params.id;
 
+    // validar todoID
+
     try {
         const todo = await Todo.findById(todoId);
 

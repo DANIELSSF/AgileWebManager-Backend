@@ -1,6 +1,6 @@
 /*
     Comments Routes
-    /api/todos
+    /api/comments
 */
 const { Router } = require("express");
 const { createComment, deleteComment, getComments } = require("../controllers/comment");
