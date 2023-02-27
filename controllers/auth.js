@@ -131,11 +131,6 @@ const loginUser = async (req, res = response) => {
       });
     };
 
-    if (user.status === "new") {
-      user.status = "member";
-      await user.save();
-    }
-
     return res.status(200).json({
       ok: true,
       uid: user.id,
