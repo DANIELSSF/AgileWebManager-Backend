@@ -8,22 +8,22 @@ const route = Router();
 
 route.get(
     "/",
-    getTables // Table: Get all tables
+    getTables
 );
 
 route.post(
     "/",
-    createTable // Table: Create
+    createTable
 );
 
 route.put(
     "/:id",
-    updateTable // Table: Update
+    updateTable 
 );
 
 route.delete(
     "/:id",
-    deleteTable // Table: Delete one table
+    deleteTable 
 );
 
 module.exports = route;
