@@ -23,13 +23,14 @@ const getTodos = async (req, res = response) => {
 
 const createTodos = async (req, res = response) => {
 
-    const { tableId, todo } = req.body;
+    const { tableId, ...todo } = req.body;
 
     try {
 
-        const newTodo = new Todo({ todo });
-        todo.comments = [];
-        const todoSaved = await todo.save();
+        const newTodo = new Todo({ ...todo });
+        newTodo.comments = [];
+        newTodo.date = new Date();
+        const todoSaved = await newTodo.save();
 
         const table = await Table.findById(tableId);
         table.todo.push(todoSaved._id);
