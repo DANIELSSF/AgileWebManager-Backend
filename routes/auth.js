@@ -3,7 +3,7 @@
     /api/auth
 */
 const { Router } = require("express");
-const { createUser, loginUser, getUsers, editUser, deleteUser } = require("../controllers/auth");
+const { createUser, loginUser, getUsers, updateUser, deleteUser } = require("../controllers/auth");
 const router = Router();
 
 router.post(
@@ -23,7 +23,7 @@ router.get(
 
 router.put(
     "/:id",
-    editUser 
+    updateUser 
 );
 
 router.delete(
