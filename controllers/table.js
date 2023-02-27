@@ -3,7 +3,7 @@ const Table = require("../models/Table");
 
 const getTables = async (req, res = response) => {
   try {
-    const tables = await Table.find().populate("todo", "name status");
+    const tables = await Table.find();
     return res.status(200).json({
       ok: true,
       tables,
