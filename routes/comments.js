@@ -3,12 +3,12 @@
     /api/todos
 */
 const { Router } = require("express");
-const { createComment } = require("../controllers/comment");
+const { createComment, deleteComment, getComments } = require("../controllers/comment");
 const router = Router();
 
 router.get(
     "/",
-    getComments //TODO: Get all Comments
+    getComments
 );
 
 router.post(
@@ -18,7 +18,7 @@ router.post(
 
 router.delete(
     "/:id",
-    deleteComment //TODO: Delete Comment
+    deleteComment
 );
 
 

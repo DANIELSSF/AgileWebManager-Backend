@@ -84,7 +84,7 @@ const deleteUser = async (req, res = response) => {
 };
 
 
-const editUser = async (req = request, res = response) => {
+const updateUser = async (req = request, res = response) => {
   const userId = req.params.id;
 
   try {
@@ -117,6 +117,9 @@ const editUser = async (req = request, res = response) => {
   }
 };
 
+
+//TODO: Double factor authentication
+//TODO: change password firt login
 
 const loginUser = async (req, res = response) => {
   const { email, password } = req.body;
@@ -151,6 +154,6 @@ module.exports = {
   createUser,
   getUsers,
   deleteUser,
-  editUser,
+  updateUser,
   loginUser
 };
