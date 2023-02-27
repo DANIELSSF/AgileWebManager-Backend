@@ -4,7 +4,7 @@ const Table = require('../models/Table');
 
 const getTodos = async (req, res = response) => {
 
-    const todos = await Todo.find().populate("comments");
+    const todos = await Todo.find();
 
     try {
         res.status(200).json({
