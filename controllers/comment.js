@@ -3,11 +3,11 @@ const Comment = require('../models/Comment');
 const Todos = require('../models/Todo');
 
 const createComment = async (req, res = response) => {
-    const { todoId, comment } = req.body;
+    const { todoId, ...comment } = req.body;
 
     try {
         const newComment = new Comment({
-            comment,
+            ...comment,
             date: new Date(),
             creator: req.uid,
         });
