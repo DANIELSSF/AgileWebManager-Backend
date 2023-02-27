@@ -3,6 +3,7 @@
     /api/todos
 */
 const { Router } = require("express");
+const { createComment } = require("../controllers/comment");
 const router = Router();
 
 router.get(
@@ -12,7 +13,7 @@ router.get(
 
 router.post(
   "/",
-  createComment //TODO: create Comment
+  createComment 
 );
 
 router.delete(

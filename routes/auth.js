@@ -3,31 +3,32 @@
     /api/auth
 */
 const { Router } = require("express");
+const { createUser, loginUser, getUsers, editUser, deleteUser } = require("../controllers/auth");
 const router = Router();
 
 router.post(
   "/new",
-  createUser //TODO: create user
+  createUser 
 );
 
 router.post(
   "/",
-  loginUser //TODO: login
+  loginUser 
 );
 
 router.get(
     "/",
-    getUsers //TODO: Get all users
+    getUsers 
 );
 
 router.put(
     "/:id",
-    editUser //TODO: Get all users
+    editUser 
 );
 
 router.delete(
     "/:id",
-    deleteUser //TODO: Delete Todo
+    deleteUser 
 );
 
 

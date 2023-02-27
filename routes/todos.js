@@ -3,26 +3,27 @@
     /api/todos
 */
 const { Router } = require("express");
+const { getTodos, createTodos, updateTodo, deleteTodo } = require("../controllers/todo");
 const router = Router();
 
 router.get(
     "/",
-    getTodos //TODO: Get all Todos
+    getTodos 
 );
 
 router.post(
   "/",
-  createTodo //TODO: create Todo
+  createTodos 
 );
 
 router.put(
   "/:id",
-  UpdateTodo //TODO: Update Todo
+  updateTodo 
 );
 
 router.delete(
     "/:id",
-    deleteTodo //TODO: Delete Todo
+    deleteTodo 
 );
 
 

@@ -3,6 +3,7 @@
 */
 
 const { Router } = require('express');
+const { getTables, createTable, updateTable, deleteTable } = require('../controllers/table');
 const route = Router();
 
 route.get(
@@ -12,7 +13,7 @@ route.get(
 
 route.post(
     "/",
-    createTables // Table: Create
+    createTable // Table: Create
 );
 
 route.put(

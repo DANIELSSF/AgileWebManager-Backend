@@ -66,7 +66,7 @@ const deleteTable = async (req, res = response) => {
   }
 };
 
-const editTable = async (req = request, res = response) => {
+const updateTable = async (req = request, res = response) => {
   const tableId = req.params.id;
   try {
     const table = await Table.findById(tableId);
@@ -104,5 +104,5 @@ module.exports = {
   getTables,
   createTable,
   deleteTable,
-  editTable,
+  updateTable,
 };

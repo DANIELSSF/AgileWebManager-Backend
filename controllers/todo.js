@@ -48,7 +48,7 @@ const createTodos = async (req, res = response) => {
     }
 };
 
-const editTodo = async (req = request, res = response) => {
+const updateTodo = async (req = request, res = response) => {
     const todoId = req.params.id;
 
     try {
@@ -115,6 +115,6 @@ const deleteTodo = async (req, res = response) => {
 module.exports = {
     getTodos,
     createTodos,
-    editTodo,
+    updateTodo,
     deleteTodo,
 }
