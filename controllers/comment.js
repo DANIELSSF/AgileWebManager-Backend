@@ -1,6 +1,6 @@
 const { response } = require('express');
-const Comment = require('../models/comments');
-const Todos = require('../models/Todos');
+const Comment = require('../models/Comment');
+const Todos = require('../models/Todo');
 
 const createComment = async (req, res = response) => {
     const { todoId, comment } = req.body;
