@@ -3,7 +3,7 @@ const Comment = require('../models/Comment');
 const Todos = require('../models/Todo');
 
 const createComment = async (req, res = response) => {
-  const { todoId, comment } = req.body;
+  const { creatorId, todoId, comment } = req.body;
 
   if (!todoId) {
     return res.status(404).json({
@@ -16,7 +16,7 @@ const createComment = async (req, res = response) => {
     const newComment = new Comment({
       comment,
       date: new Date(),
-      creator: req.uid,
+      creator: creatorId,
     });
     const commentSaved = await newComment.save();
 
