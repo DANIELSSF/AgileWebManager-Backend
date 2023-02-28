@@ -21,7 +21,7 @@ const getTables = async (req, res = response) => {
 const createTable = async (req, res = response) => {
   const table = new Table(req.body);
   try {
-    table.todo = [];
+    table.todos = [];
     table.date = new Date();
     const tableSaved = await table.save();
 
@@ -50,7 +50,7 @@ const deleteTable = async (req, res = response) => {
       });
     }
 
-    const todos = table.todo;
+    const todos = table.todos;
 
     if (todos) {
       todos.forEach(async (todo) => {

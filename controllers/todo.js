@@ -42,7 +42,7 @@ const createTodos = async (req, res = response) => {
         const todoSaved = await newTodo.save();
 
         const table = await Table.findById(tableId);
-        table.todo.push(todoSaved._id);
+        table.todos.push(todoSaved._id);
         await table.save();
 
         res.status(201).json({
@@ -110,7 +110,21 @@ const deleteTodo = async (req, res = response) => {
             comments.forEach(async (comment) => {
               await Comment.findByIdAndDelete(comment);
             });
-          }
+        }
+
+        const tables = await Table.find({ "table.todos": todoId });
+
+        console.log(tables)
+
+        tables.forEach(async (table) => {
+        const todoIndex = table.todos.findIndex(
+            (todo) => todo == todoId
+        );
+        if (todoIndex !== -1) {
+            table.todos.splice(todoIndex, 1);
+            await table.save();
+        }
+        });
 
         await Todo.findByIdAndDelete(todoId);
 
