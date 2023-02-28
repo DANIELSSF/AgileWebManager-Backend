@@ -1,6 +1,7 @@
-const { response } = require('express');
-const Comment = require('../models/Comment');
-const Todos = require('../models/Todo');
+const { response } = require("express");
+const Comment = require("../models/Comment");
+const Todo = require("../models/Todo");
+const Todos = require("../models/Todo");
 
 const createComment = async (req, res = response) => {
   const { creatorId, todoId, comment } = req.body;
@@ -16,7 +17,7 @@ const createComment = async (req, res = response) => {
       ok: false,
       msg: "Id todo not found",
     });
-  };
+  }
 
   try {
     const newComment = new Comment({
@@ -30,12 +31,10 @@ const createComment = async (req, res = response) => {
     todo.comments.push(commentSaved._id);
     await todo.save();
 
-
     res.status(201).json({
       ok: true,
       comment: commentSaved,
     });
-
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -43,11 +42,9 @@ const createComment = async (req, res = response) => {
       msg: "Contact the administrator",
     });
   }
-
 };
 
 const getComments = async (req, res = response) => {
-
   const comments = await Comment.find().populate("creator", "name");
 
   try {
@@ -55,7 +52,6 @@ const getComments = async (req, res = response) => {
       ok: true,
       comments,
     });
-
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -63,8 +59,7 @@ const getComments = async (req, res = response) => {
       msg: "Contact the administrator",
     });
   }
-}
-
+};
 
 const deleteComment = async (req, res = response) => {
   const commentId = req.params.id;
@@ -78,12 +73,24 @@ const deleteComment = async (req, res = response) => {
       });
     }
 
+    const todos = await Todo.find({ "table.comment1": commentId });
+
+    // Removes the comment from the list of comments for each found item
+    todos.forEach(async (todo) => {
+      const commentIndex = todo.comments.findIndex(
+        (comment) => comment == commentId
+      );
+      if (commentIndex !== -1) {
+        todo.comments.splice(commentIndex, 1);
+        await todo.save();
+      }
+    });
+
     await Comment.findByIdAndDelete(commentId);
 
     res.status(200).json({
       ok: true,
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -91,10 +98,10 @@ const deleteComment = async (req, res = response) => {
       msg: "Talk to the administrator",
     });
   }
-}
+};
 
 module.exports = {
   createComment,
   deleteComment,
-  getComments
-}
+  getComments,
+};
