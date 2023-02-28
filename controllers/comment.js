@@ -1,6 +1,6 @@
 const { response } = require("express");
 const Comment = require("../models/Comment");
-const Todos = require("../models/Todo");
+const Todo = require("../models/Todo");
 
 const createComment = async (req, res = response) => {
   const { creatorId, todoId, comment } = req.body;
@@ -23,10 +23,11 @@ const createComment = async (req, res = response) => {
       comment,
       date: new Date(),
       creator: creatorId,
+      todo:todoId,
     });
     const commentSaved = await newComment.save();
 
-    const todo = await Todos.findById(todoId);
+    const todo = await Todo.findById(todoId);
     todo.comments.push(commentSaved._id);
     await todo.save();
 
@@ -45,7 +46,6 @@ const createComment = async (req, res = response) => {
 
 const getComments = async (req, res = response) => {
   const comments = await Comment.find().populate("creator", "name");
-
   try {
     res.status(200).json({
       ok: true,
@@ -72,7 +72,7 @@ const deleteComment = async (req, res = response) => {
       });
     }
 
-    const todos = await Todos.find({ "table.comment1": commentId });
+    const todos = await Todo.find({ "table.comment1": commentId });
 
     // Removes the comment from the list of comments for each found item
     todos.forEach(async (todo) => {

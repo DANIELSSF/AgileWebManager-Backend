@@ -9,6 +9,11 @@ const CommentsSchema = Schema ({
         ref: 'User',
         required: true,
     },
+    todo: {
+        type: Schema.Types.ObjectId,
+        ref: 'Todo',
+        required: true,
+    },
     date: {
         type: Date,
         required: true,
@@ -23,4 +28,4 @@ CommentsSchema.method('toJSON', function () {
     return object;
 });
 
-module.exports = model('Comments', CommentsSchema);
+module.exports = model('Comment', CommentsSchema);
