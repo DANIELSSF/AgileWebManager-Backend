@@ -22,6 +22,11 @@ const TodosSchema = Schema({
             ref: "Comments",
         },
     ],
+    table: {
+        type: Schema.Types.ObjectId,
+        ref: 'Table',
+        required: true,
+    },
 });
 
 TodosSchema.method('toJSON', function () {
@@ -31,4 +36,4 @@ TodosSchema.method('toJSON', function () {
     return object;
 });
 
-module.exports = model('Todos', TodosSchema);
+module.exports = model('Todo', TodosSchema);
