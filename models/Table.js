@@ -13,7 +13,7 @@ const TableSchema = Schema({
     type: Date,
     required: true,
   },
-  todo: [
+  todos: [
     {
       type: Schema.Types.ObjectId,
       ref: "Todo",
