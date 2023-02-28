@@ -5,6 +5,12 @@ const Todos = require('../models/Todo');
 const createComment = async (req, res = response) => {
   const { creatorId, todoId, comment } = req.body;
 
+  if (!creatorId) {
+    return res.status(404).json({
+      ok: false,
+      msg: "creator not found",
+    });
+  }
   if (!todoId) {
     return res.status(404).json({
       ok: false,
