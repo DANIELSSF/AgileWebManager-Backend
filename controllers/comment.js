@@ -1,6 +1,5 @@
 const { response } = require("express");
 const Comment = require("../models/Comment");
-const Todo = require("../models/Todo");
 const Todos = require("../models/Todo");
 
 const createComment = async (req, res = response) => {
@@ -73,7 +72,7 @@ const deleteComment = async (req, res = response) => {
       });
     }
 
-    const todos = await Todo.find({ "table.comment1": commentId });
+    const todos = await Todos.find({ "table.comment1": commentId });
 
     // Removes the comment from the list of comments for each found item
     todos.forEach(async (todo) => {
