@@ -96,10 +96,13 @@ const updateUser = async (req = request, res = response) => {
         msg: "No user with this id was found",
       });
     }
-
+    
+    if(req.body.phone){
+      req.body.phone = "+57"+req.body.phone;
+    }
+    console.log(req.body.phone)
     const newUser = {
       ...req.body,
-      password:user.password
     };
 
     const updatedUser = await User.findByIdAndUpdate(userId, newUser, { new: true });
