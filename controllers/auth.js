@@ -1,6 +1,8 @@
 const { response, request } = require("express");
+const client = require("twilio")(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+
 
 const createUser = async (req, res = response) => {
   const { email, password } = req.body;
@@ -96,11 +98,24 @@ const updateUser = async (req = request, res = response) => {
         msg: "No user with this id was found",
       });
     }
-    
-    if(req.body.phone){
-      req.body.phone = "+57"+req.body.phone;
+
+    if (req.body.password) {
+
+      if (bcrypt.compareSync(req.body.password, user.password)) {
+        return res.status(400).json({
+          ok: false,
+          msg: "Use a different password than one already used on this account.",
+        });
+      } else {
+        const salt = bcrypt.genSaltSync();
+        const newPassword = bcrypt.hashSync(req.body.password, salt);
+        req.body.password = newPassword;
+        if (user.status == "new") {
+          req.body.status = "member";
+        }
+
+      }
     }
-    console.log(req.body.phone)
     const newUser = {
       ...req.body,
     };
@@ -116,14 +131,45 @@ const updateUser = async (req = request, res = response) => {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Error searching for the user in the database, talk to an administrator.",
+      msg: "Talk to an administrator.",
     });
   }
 };
 
 
-//TODO: Double factor authentication
-//TODO: change password firt login
+const startVerificationNumber = (req = request, res = response) => {
+  const { phone } = req.body
+  client.verify.v2.services(process.env.SERVICE_SID)
+    .verifications
+    .create({ to: phone, channel: 'sms' })
+    .then(verification => res.status(200).json({
+      ok: true,
+      phone: phone
+    }))
+    .catch(error => res.status(500).json({
+      ok: false
+    }))
+};
+
+const verificationNumber = (req = request, res = response) => {
+  const { phone, code } = req.body
+
+  client.verify.v2.services(process.env.SERVICE_SID)
+    .verificationChecks.create({ to: phone, code: code })
+    .then((verification_check) => {
+      if (verification_check.valid) {
+        res.status(200).json({
+          ok: true
+        })
+      }
+      res.status(500).json({
+        ok: false
+      })
+    })
+    .catch(error => res.status(500).json({
+      ok: false
+    }))
+};
 
 const loginUser = async (req, res = response) => {
   const { email, password } = req.body;
@@ -143,6 +189,8 @@ const loginUser = async (req, res = response) => {
       uid: user.id,
       name: user.name,
       status: user.status,
+      role: user.role,
+      phone: user.phone,
     });
 
   } catch (error) {
@@ -159,5 +207,7 @@ module.exports = {
   getUsers,
   deleteUser,
   updateUser,
-  loginUser
+  loginUser,
+  startVerificationNumber,
+  verificationNumber,
 };
