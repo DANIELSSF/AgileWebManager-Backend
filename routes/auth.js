@@ -3,7 +3,7 @@
     /api/auth
 */
 const { Router } = require("express");
-const { createUser, loginUser, getUsers, updateUser, deleteUser, smsAuthentication, startVerificationNumber, verificationNumber } = require("../controllers/auth");
+const { createUser, loginUser, getUsers, updateUser, deleteUser, sendCode, verificationNumber } = require("../controllers/auth");
 const router = Router();
 
 router.post(
@@ -30,15 +30,14 @@ router.delete(
   "/:id",
   deleteUser
 );
-// Verifidication
 
 router.post(
-  "/send-number",
-  startVerificationNumber,
+  "/send",
+  sendCode,
 );
 
 router.post(
-  "/verify-number",
+  "/verify",
   verificationNumber,
 );
 
