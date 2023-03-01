@@ -3,34 +3,44 @@
     /api/auth
 */
 const { Router } = require("express");
-const { createUser, loginUser, getUsers, updateUser, deleteUser } = require("../controllers/auth");
+const { createUser, loginUser, getUsers, updateUser, deleteUser, smsAuthentication, startVerificationNumber, verificationNumber } = require("../controllers/auth");
 const router = Router();
 
 router.post(
   "/new",
-  createUser 
+  createUser
 );
 
 router.post(
   "/",
-  loginUser 
+  loginUser
 );
 
 router.get(
-    "/",
-    getUsers 
+  "/",
+  getUsers
 );
 
 router.put(
-    "/:id",
-    updateUser 
+  "/:id",
+  updateUser
 );
 
 router.delete(
-    "/:id",
-    deleteUser 
+  "/:id",
+  deleteUser
+);
+// Verifidication
+
+router.post(
+  "/send-number",
+  startVerificationNumber,
 );
 
+router.post(
+  "/verify-number",
+  verificationNumber,
+);
 
 
 module.exports = router;
