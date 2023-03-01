@@ -1,8 +1,10 @@
 const { response, request } = require("express");
-const client = require("twilio")(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
+const client = require("twilio")(
+  process.env.ACCOUNT_SID,
+  process.env.AUTH_TOKEN
+);
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
-
 
 const createUser = async (req, res = response) => {
   const { email, password } = req.body;
@@ -57,7 +59,6 @@ const getUsers = async (req, res = response) => {
   }
 };
 
-
 const deleteUser = async (req, res = response) => {
   const userId = req.params.id;
   try {
@@ -75,7 +76,6 @@ const deleteUser = async (req, res = response) => {
     res.status(200).json({
       ok: true,
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -84,7 +84,6 @@ const deleteUser = async (req, res = response) => {
     });
   }
 };
-
 
 const updateUser = async (req = request, res = response) => {
   const userId = req.params.id;
@@ -100,7 +99,6 @@ const updateUser = async (req = request, res = response) => {
     }
 
     if (req.body.password) {
-
       if (bcrypt.compareSync(req.body.password, user.password)) {
         return res.status(400).json({
           ok: false,
@@ -113,20 +111,20 @@ const updateUser = async (req = request, res = response) => {
         if (user.status == "new") {
           req.body.status = "member";
         }
-
       }
     }
     const newUser = {
       ...req.body,
     };
 
-    const updatedUser = await User.findByIdAndUpdate(userId, newUser, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(userId, newUser, {
+      new: true,
+    });
 
     res.status(200).json({
       ok: true,
       user: updatedUser,
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -136,39 +134,45 @@ const updateUser = async (req = request, res = response) => {
   }
 };
 
-
-const startVerificationNumber = (req = request, res = response) => {
-  const { phone } = req.body
-  client.verify.v2.services(process.env.SERVICE_SID)
-    .verifications
-    .create({ to: phone, channel: 'sms' })
-    .then(verification => res.status(200).json({
-      ok: true,
-      phone: phone
-    }))
-    .catch(error => res.status(500).json({
-      ok: false
-    }))
+const sendCode = (req = request, res = response) => {
+  const { phone } = req.body;
+  client.verify.v2
+    .services(process.env.SERVICE_SID)
+    .verifications.create({ to: phone, channel: "sms" })
+    .then((verification) => {
+      return res.status(200).json({
+        ok: true,
+        phone: phone,
+      });
+    })
+    .catch((error) => {
+      return res.status(500).json({
+        ok: false,
+      });
+    });
 };
 
 const verificationNumber = (req = request, res = response) => {
-  const { phone, code } = req.body
+  const { phone, code } = req.body;
 
-  client.verify.v2.services(process.env.SERVICE_SID)
+  client.verify.v2
+    .services(process.env.SERVICE_SID)
     .verificationChecks.create({ to: phone, code: code })
     .then((verification_check) => {
       if (verification_check.valid) {
-        res.status(200).json({
-          ok: true
-        })
+        return res.status(200).json({
+          ok: true,
+        });
       }
-      res.status(500).json({
-        ok: false
-      })
+      return res.status(500).json({
+        ok: false,
+      });
     })
-    .catch(error => res.status(500).json({
-      ok: false
-    }))
+    .catch((error) => {
+      return res.status(500).json({
+        ok: false,
+      });
+    });
 };
 
 const loginUser = async (req, res = response) => {
@@ -182,7 +186,7 @@ const loginUser = async (req, res = response) => {
         ok: false,
         msg: "Incorrect email or password",
       });
-    };
+    }
 
     return res.status(200).json({
       ok: true,
@@ -192,12 +196,11 @@ const loginUser = async (req, res = response) => {
       role: user.role,
       phone: user.phone,
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Error searching for the user in the database, talk to an administrator."
+      msg: "Error searching for the user in the database, talk to an administrator.",
     });
   }
 };
@@ -208,6 +211,6 @@ module.exports = {
   deleteUser,
   updateUser,
   loginUser,
-  startVerificationNumber,
+  sendCode,
   verificationNumber,
 };
