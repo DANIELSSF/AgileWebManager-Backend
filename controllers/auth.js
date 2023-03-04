@@ -5,6 +5,7 @@ const client = require("twilio")(
 );
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const { generateJWT } = require("../helpers/jwt");
 
 const createUser = async (req, res = response) => {
   const { email, password } = req.body;
@@ -205,6 +206,37 @@ const loginUser = async (req, res = response) => {
   }
 };
 
+const generateToken = async (req = request, res = response) => {
+  const { id, name, status, role, phone } = req.body;
+  //JWT
+  const token = await generateJWT(id, name, status, role, phone);
+
+  res.status(200).json({
+    ok: true,
+    uid: id,
+    name,
+    token,
+    status,
+    role,
+    phone,
+  });
+};
+
+const revalidateToken = async (req, res = response) => {
+  const { uid, name, status, role, phone } = req;
+
+  const token = await generateJWT(uid, name, status, role, phone);
+  res.json({
+    ok: true,
+    uid,
+    name,
+    status,
+    role,
+    phone,
+    token,
+  });
+};
+
 module.exports = {
   createUser,
   getUsers,
@@ -213,4 +245,6 @@ module.exports = {
   loginUser,
   sendCode,
   verificationNumber,
+  revalidateToken,
+  generateToken,
 };
