@@ -3,43 +3,36 @@
     /api/auth
 */
 const { Router } = require("express");
-const { createUser, loginUser, getUsers, updateUser, deleteUser, sendCode, verificationNumber } = require("../controllers/auth");
+const {
+  createUser,
+  loginUser,
+  getUsers,
+  updateUser,
+  deleteUser,
+  sendCode,
+  verificationNumber,
+  revalidateToken,
+  generateToken,
+} = require("../controllers/auth");
+const { validateJWT } = require("../middlewares/validate-jwt");
 const router = Router();
 
-router.post(
-  "/new",
-  createUser
-);
+router.get("/", getUsers);
 
-router.post(
-  "/",
-  loginUser
-);
+router.get("/renew", validateJWT, revalidateToken);
 
-router.get(
-  "/",
-  getUsers
-);
+router.post("/new", createUser);
 
-router.put(
-  "/:id",
-  updateUser
-);
+router.post("/", loginUser);
 
-router.delete(
-  "/:id",
-  deleteUser
-);
+router.post("/send", sendCode);
 
-router.post(
-  "/send",
-  sendCode,
-);
+router.post("/verify", verificationNumber);
 
-router.post(
-  "/verify",
-  verificationNumber,
-);
+router.post("/token", generateToken);
 
+router.put("/:id", updateUser);
+
+router.delete("/:id", deleteUser);
 
 module.exports = router;
