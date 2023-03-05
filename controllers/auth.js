@@ -196,6 +196,7 @@ const loginUser = async (req, res = response) => {
       status: user.status,
       role: user.role,
       phone: user.phone,
+      email,
     });
   } catch (error) {
     console.log(error);
@@ -207,9 +208,9 @@ const loginUser = async (req, res = response) => {
 };
 
 const generateToken = async (req = request, res = response) => {
-  const { id, name, status, role, phone } = req.body;
+  const { id, name, status, role, phone,email } = req.body;
   //JWT
-  const token = await generateJWT(id, name, status, role, phone);
+  const token = await generateJWT(id, name, status, role, phone,email);
 
   res.status(200).json({
     ok: true,
@@ -219,13 +220,14 @@ const generateToken = async (req = request, res = response) => {
     status,
     role,
     phone,
+    email,
   });
 };
 
 const revalidateToken = async (req, res = response) => {
-  const { uid, name, status, role, phone } = req;
+  const { uid, name, status, role, phone,email } = req;
 
-  const token = await generateJWT(uid, name, status, role, phone);
+  const token = await generateJWT(uid, name, status, role, phone,email);
   res.json({
     ok: true,
     uid,
@@ -234,6 +236,7 @@ const revalidateToken = async (req, res = response) => {
     role,
     phone,
     token,
+    email,
   });
 };
 
