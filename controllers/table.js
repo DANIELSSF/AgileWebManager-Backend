@@ -27,7 +27,7 @@ const createTable = async (req, res = response) => {
 
     res.status(201).json({
       ok: true,
-      event: tableSaved,
+      table: tableSaved,
     });
   } catch (error) {
     console.log(error);
