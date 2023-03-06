@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const { generateJWT } = require("../helpers/jwt");
 const { writefile } = require("../helpers/wirtteHistoy");
+const { getName } = require("../helpers/getName");
 
 const createUser = async (req, res = response) => {
   const { email, password } = req.body;
@@ -30,6 +31,15 @@ const createUser = async (req, res = response) => {
     user.password = bcrypt.hashSync(password, salt);
 
     await user.save();
+
+    const token = req.header("x-token");
+    const ipAddress = req.socket.remoteAddress;
+    writefile({
+      ip: ipAddress,
+      user: getName(token),
+      date: new Date(),
+      operation: "Creo un usuario",
+    });
 
     res.status(201).json({
       ok: true,
@@ -75,6 +85,15 @@ const deleteUser = async (req, res = response) => {
 
     await User.findByIdAndDelete(userId);
 
+    const token = req.header("x-token");
+    const ipAddress = req.socket.remoteAddress;
+    writefile({
+      ip: ipAddress,
+      user: getName(token),
+      date: new Date(),
+      operation: "Elimino un usuario",
+    });
+
     res.status(200).json({
       ok: true,
     });
@@ -115,6 +134,7 @@ const updateUser = async (req = request, res = response) => {
         }
       }
     }
+
     const newUser = {
       ...req.body,
     };
@@ -122,6 +142,23 @@ const updateUser = async (req = request, res = response) => {
     const updatedUser = await User.findByIdAndUpdate(userId, newUser, {
       new: true,
     });
+    const token = req.header("x-token");
+    const ipAddress = req.socket.remoteAddress;
+    if (getName(token)) {
+      writefile({
+        ip: ipAddress,
+        user: getName(token),
+        date: new Date(),
+        operation: "el usuario actualizo un usuario",
+      });
+    } else {
+      writefile({
+        ip: ipAddress,
+        user: user.name,
+        date: new Date(),
+        operation: "El usurio actualizo sus datos",
+      });
+    }
 
     res.status(200).json({
       ok: true,
@@ -189,8 +226,13 @@ const loginUser = async (req, res = response) => {
         msg: "Incorrect email or password",
       });
     }
-    var ipAddress = req.connection.remoteAddress;
-    writefile({ ip: ipAddress, user: user.name, date: new Date(), operation: "Inicio Sesion" });
+    const ipAddress = req.connection.remoteAddress;
+    writefile({
+      ip: ipAddress,
+      user: user.name,
+      date: new Date(),
+      operation: "Inicio Sesion",
+    });
 
     return res.status(200).json({
       ok: true,
