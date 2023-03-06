@@ -2,6 +2,8 @@ const { response, request } = require("express");
 const Todo = require("../models/Todo");
 const Table = require("../models/Table");
 const Comment = require("../models/Comment");
+const { writefile } = require("../helpers/wirtteHistoy");
+const { getName } = require("../helpers/getName");
 
 const getTodos = async (req, res = response) => {
   const todos = await Todo.find();
@@ -41,6 +43,15 @@ const createTodos = async (req, res = response) => {
     table.todos.push(todoSaved._id);
     await table.save();
 
+    const token = req.header("x-token");
+    const ipAddress = req.connection.remoteAddress;
+    writefile({
+      ip: ipAddress,
+      user: getName(token),
+      date: new Date(),
+      operation: "Creo un Todo",
+    });
+
     res.status(201).json({
       ok: true,
       todo: todoSaved,
@@ -73,6 +84,15 @@ const updateTodo = async (req = request, res = response) => {
 
     const updateTodo = await Todo.findByIdAndUpdate(todoId, newTodo, {
       new: true,
+    });
+
+    const token = req.header("x-token");
+    const ipAddress = req.socket.remoteAddress;
+    writefile({
+      ip: ipAddress,
+      user: getName(token),
+      date: new Date(),
+      operation: "Actualizo un Todo",
     });
 
     res.status(200).json({
@@ -121,6 +141,15 @@ const deleteTodo = async (req, res = response) => {
     });
 
     await Todo.findByIdAndDelete(todoId);
+
+    const token = req.header("x-token");
+    const ipAddress = req.connection.remoteAddress;
+    writefile({
+      ip: ipAddress,
+      user: getName(token),
+      date: new Date(),
+      operation: "Elimino un Todo",
+    });
 
     res.status(201).json({
       ok: true,
