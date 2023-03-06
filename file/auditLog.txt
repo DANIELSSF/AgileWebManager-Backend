@@ -1,0 +1,9 @@
+Esto es una nueva línea.
+Esto es una nueva línea.
+IP: ::1.
+IP: ::1.
+IP: ::1.
+Usuario: Daniel Silva, ip: undefined, accion: Inicio Sesion, fecha: Mon Mar 06 2023 14:25:58 GMT-0500 (hora estándar de Colombia).
+Usuario: Daniel Silva, ip: ::1, accion: Inicio Sesion, fecha: Mon Mar 06 2023 14:26:59 GMT-0500 (hora estándar de Colombia).
+Usuario: Camilo Cortes, ip: ::ffff:10.200.1.65, accion: Inicio Sesion, fecha: Mon Mar 06 2023 14:50:34 GMT-0500 (hora estándar de Colombia).
+Usuario: test, ip: ::1, accion: Inicio Sesion, fecha: Mon Mar 06 2023 14:52:34 GMT-0500 (hora estándar de Colombia).
