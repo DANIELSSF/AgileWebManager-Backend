@@ -1,4 +1,6 @@
 const { response, request } = require("express");
+const { getName } = require("../helpers/getName");
+const { writefile } = require("../helpers/wirtteHistoy");
 const Table = require("../models/Table");
 const Todo = require("../models/Todo");
 
@@ -24,6 +26,15 @@ const createTable = async (req, res = response) => {
     table.todos = [];
     table.date = new Date();
     const tableSaved = await table.save();
+
+    const token = req.header("x-token");
+    const ipAddress = req.connection.remoteAddress;
+    writefile({
+      ip: ipAddress,
+      user: getName(token),
+      date: new Date(),
+      operation: "Creo una tabla",
+    });
 
     res.status(201).json({
       ok: true,
@@ -59,6 +70,15 @@ const deleteTable = async (req, res = response) => {
     }
     await Table.findByIdAndDelete(tableId);
 
+    const token = req.header("x-token");
+    const ipAddress = req.connection.remoteAddress;
+    writefile({
+      ip: ipAddress,
+      user: getName(token),
+      date: new Date(),
+      operation: "Elimino una tabla",
+    });
+
     res.status(200).json({
       ok: true,
     });
@@ -89,6 +109,15 @@ const updateTable = async (req = request, res = response) => {
 
     const tableUpdate = await Table.findByIdAndUpdate(tableId, newTable, {
       new: true,
+    });
+
+    const token = req.header("x-token");
+    const ipAddress = req.socket.remoteAddress;
+    writefile({
+      ip: ipAddress,
+      user: getName(token),
+      date: new Date(),
+      operation: "Actualizo una tabla",
     });
 
     res.json({
