@@ -6,6 +6,7 @@ const client = require("twilio")(
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const { generateJWT } = require("../helpers/jwt");
+const { writefile } = require("../helpers/wirtteHistoy");
 
 const createUser = async (req, res = response) => {
   const { email, password } = req.body;
@@ -188,6 +189,8 @@ const loginUser = async (req, res = response) => {
         msg: "Incorrect email or password",
       });
     }
+    var ipAddress = req.connection.remoteAddress;
+    writefile({ ip: ipAddress, user: user.name, date: new Date(), operation: "Inicio Sesion" });
 
     return res.status(200).json({
       ok: true,
@@ -208,9 +211,9 @@ const loginUser = async (req, res = response) => {
 };
 
 const generateToken = async (req = request, res = response) => {
-  const { id, name, status, role, phone,email } = req.body;
+  const { id, name, status, role, phone, email } = req.body;
   //JWT
-  const token = await generateJWT(id, name, status, role, phone,email);
+  const token = await generateJWT(id, name, status, role, phone, email);
 
   res.status(200).json({
     ok: true,
@@ -225,9 +228,9 @@ const generateToken = async (req = request, res = response) => {
 };
 
 const revalidateToken = async (req, res = response) => {
-  const { uid, name, status, role, phone,email } = req;
+  const { uid, name, status, role, phone, email } = req;
 
-  const token = await generateJWT(uid, name, status, role, phone,email);
+  const token = await generateJWT(uid, name, status, role, phone, email);
   res.json({
     ok: true,
     uid,
