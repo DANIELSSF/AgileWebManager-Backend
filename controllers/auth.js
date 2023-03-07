@@ -144,19 +144,19 @@ const updateUser = async (req = request, res = response) => {
     });
     const token = req.header("x-token");
     const ipAddress = req.socket.remoteAddress;
-    if (getName(token)) {
+    if (getName(token) !== 'Sin nombre') {
       writefile({
         ip: ipAddress,
         user: getName(token),
         date: new Date(),
-        operation: "el usuario actualizo un usuario",
+        operation: "Actualizo un usuario",
       });
     } else {
       writefile({
         ip: ipAddress,
         user: user.name,
         date: new Date(),
-        operation: "El usurio actualizo sus datos",
+        operation: "Actualizo sus datos",
       });
     }
 
