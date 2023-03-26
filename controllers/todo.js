@@ -6,7 +6,14 @@ const { writefile } = require("../helpers/wirtteHistoy");
 const { getName } = require("../helpers/getName");
 
 const getTodos = async (req, res = response) => {
-  const todos = await Todo.find();
+  const todos = await Todo.find().populate({
+    path: "comments", // populate comments
+    select: { __v: 0 },
+    populate: {
+      path: "creator",
+      select: { name: 1, uid: 1 }, // in comments, populate creator
+    },
+  });
 
   try {
     res.status(200).json({
