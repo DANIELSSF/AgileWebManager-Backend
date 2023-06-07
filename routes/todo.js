@@ -3,7 +3,7 @@
     /api/todos
 */
 const { Router } = require("express");
-const { getTodos, createTodos, updateTodo, deleteTodo } = require("../controllers/todo");
+const { getTodos, createTodo, updateTodo, deleteTodo } = require("../controllers/todo");
 const router = Router();
 
 router.get(
@@ -13,7 +13,7 @@ router.get(
 
 router.post(
   "/",
-  createTodos 
+  createTodo 
 );
 
 router.put(

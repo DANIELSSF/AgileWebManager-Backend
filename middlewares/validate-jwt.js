@@ -1,36 +1,27 @@
-const { response } = require("express");
-const jwt = require("jsonwebtoken");
+const { response } = require('express');
+const jwt = require('jsonwebtoken');
 
 const validateJWT = (req, res = response, next) => {
   //x-token headers
 
-  const token = req.header("x-token");
-
+  const token = req.header('x-token');
 
   if (!token) {
     return res.status(401).json({
       ok: false,
-      msg: "No hay token en la peticion",
+      msg: 'No token in the request',
     });
   }
 
   try {
-    const { uid, name, status, role, phone,email } = jwt.verify(
-      token,
-      process.env.SECRET_JWT_SEED
-    );
-
-    req.uid = uid;
-    req.name = name;
-    req.status = status;
-    req.role = role;
-    req.phone = phone;
-    req.email = email;
-
+    const user = jwt.verify(token, process.env.SECRET_JWT_SEED);
+    delete user.iat;
+    delete user.exp;
+    req.user = user;
   } catch (error) {
     return res.status(401).json({
       ok: false,
-      msg: "Token no valido",
+      msg: 'Token not valid',
     });
   }
 
