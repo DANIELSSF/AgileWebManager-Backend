@@ -1,105 +1,105 @@
-const { response, request } = require("express");
-const Todo = require("../models/Todo");
-const Table = require("../models/Table");
-const Comment = require("../models/Comment");
-const { writefile } = require("../helpers/wirtteHistoy");
-const { getName } = require("../helpers/getName");
+const { response, request } = require('express');
+
+const { writefile } = require('../helpers');
+
+const Todo = require('../models/Todo');
+const Table = require('../models/Table');
+const Comment = require('../models/Comment');
 
 const getTodos = async (req, res = response) => {
-  const todos = await Todo.find().populate({
-    path: "comments", // populate comments
-    select: { __v: 0 },
-    populate: {
-      path: "creator",
-      select: { name: 1, uid: 1 }, // in comments, populate creator
-    },
-  });
-
   try {
+    const todos = await Todo.find().populate({
+      path: 'comments', // populate comments
+      select: { __v: 0 },
+      populate: {
+        path: 'creator',
+        select: { name: 1, uid: 1 }, // in comments, populate creator
+      },
+    });
     res.status(200).json({
       ok: true,
       todos,
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
+    res.status(500).json({
       ok: false,
-      msg: "Contact the administrator",
+      msg: 'Contact the administrator',
     });
   }
 };
 
-const createTodos = async (req, res = response) => {
-  const { tableId, ...todo } = req.body;
+const createTodo = async (req, res = response) => {
+  const {
+    tableId,
+    name,
+    desc,
+    status,
+    date = new Date(),
+    comments = [],
+  } = req.body;
 
   if (!tableId) {
     return res.status(404).json({
       ok: false,
-      msg: "Id table not found.",
+      msg: 'Table ID not found.',
     });
   }
 
   try {
-    const newTodo = new Todo({ ...todo });
-    newTodo.comments = [];
-    newTodo.date = new Date();
-    newTodo.table = tableId;
-    const todoSaved = await newTodo.save();
+    const newTodo = await Todo.create({
+      name,
+      status,
+      date,
+      comments,
+      desc,
+      table: tableId,
+    });
 
-    const table = await Table.findById(tableId);
-    table.todos.push(todoSaved._id);
-    await table.save();
+    await Table.findByIdAndUpdate(tableId, {
+      $push: { todos: newTodo._id },
+    });
 
-    const token = req.header("x-token");
-    const ipAddress = req.connection.remoteAddress;
     writefile({
-      ip: ipAddress,
-      user: getName(token),
+      ip: req.connection.remoteAddress,
+      user: req.user.uid,
       date: new Date(),
-      operation: "Creo un Todo",
+      operation: 'Created a todo',
     });
 
     res.status(201).json({
       ok: true,
-      todo: todoSaved,
+      todo: newTodo,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Contact the administrator",
+      msg: 'Contact the administrator',
     });
   }
 };
 
 const updateTodo = async (req = request, res = response) => {
-  const todoId = req.params.id;
+  const { id } = req.params;
 
   try {
-    const todo = await Todo.findById(todoId);
-
-    if (!todo) {
-      return res.status(404).json({
-        ok: false,
-        msg: "Todo does not exist for this id",
-      });
-    }
-
-    const newTodo = {
-      ...req.body,
-    };
-
-    const updateTodo = await Todo.findByIdAndUpdate(todoId, newTodo, {
+    const updatedTodo = await Todo.findByIdAndUpdate(id, req.body, {
       new: true,
     });
 
-    const token = req.header("x-token");
-    const ipAddress = req.socket.remoteAddress;
+    if (!updatedTodo) {
+      return res.status(404).json({
+        ok: false,
+        msg: 'Todo does not exist for this id',
+      });
+    }
+
     writefile({
-      ip: ipAddress,
-      user: getName(token),
+      ip: req.socket.remoteAddress,
+      user: req.user.uid,
       date: new Date(),
-      operation: "Actualizo un Todo",
+      operation: 'Updated a todo',
     });
 
     res.status(200).json({
@@ -110,69 +110,52 @@ const updateTodo = async (req = request, res = response) => {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Contact the administrator",
+      msg: 'Contact the administrator',
     });
   }
 };
 
 const deleteTodo = async (req, res = response) => {
-  const todoId = req.params.id;
+  const { id } = req.params;
 
   try {
-    const todo = await Todo.findById(todoId);
+    const todo = await Todo.findById(id);
     if (!todo) {
       return res.status(404).json({
         ok: false,
-        msg: "Todo does not exist for this id",
+        msg: 'Todo does not exist for this id',
       });
     }
 
     const comments = todo.comments;
-
-    if (comments) {
-      comments.forEach(async (comment) => {
-        await Comment.findByIdAndDelete(comment);
-      });
+    if (comments && comments.length > 0) {
+      await Comment.deleteMany({ _id: { $in: comments } });
     }
 
-    const tables = await Table.find({ "table.todos": todoId });
+    await Todo.findByIdAndDelete(id);
 
-    console.log(tables);
-
-    tables.forEach(async (table) => {
-      const todoIndex = table.todos.findIndex((todo) => todo == todoId);
-      if (todoIndex !== -1) {
-        table.todos.splice(todoIndex, 1);
-        await table.save();
-      }
-    });
-
-    await Todo.findByIdAndDelete(todoId);
-
-    const token = req.header("x-token");
-    const ipAddress = req.connection.remoteAddress;
     writefile({
-      ip: ipAddress,
-      user: getName(token),
+      ip: req.connection.remoteAddress,
+      user: req.user.uid,
       date: new Date(),
-      operation: "Elimino un Todo",
+      operation: 'Deleted a todo',
     });
 
-    res.status(201).json({
+    res.status(200).json({
       ok: true,
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
+    res.status(500).json({
       ok: false,
-      msg: "Contact the administrator",
+      msg: 'Contact the administrator',
     });
   }
 };
 
 module.exports = {
   getTodos,
-  createTodos,
+  createTodo,
   updateTodo,
   deleteTodo,
 };

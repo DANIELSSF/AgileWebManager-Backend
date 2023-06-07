@@ -1,91 +1,67 @@
-const { response } = require("express");
-const Comment = require("../models/Comment");
-const Todo = require("../models/Todo");
+const { response } = require('express');
+
+const Todo = require('../models/Todo');
+const Comment = require('../models/Comment');
 
 const createComment = async (req, res = response) => {
-  const { creatorId, todoId, comment } = req.body;
-
-  if (!creatorId) {
-    return res.status(404).json({
-      ok: false,
-      msg: "creator not found",
-    });
-  }
-  if (!todoId) {
-    return res.status(404).json({
-      ok: false,
-      msg: "Id todo not found",
-    });
-  }
+  const { todoId, comment } = req.body;
 
   try {
-    const newComment = new Comment({
+    const createdComment = await Comment.create({
       comment,
       date: new Date(),
-      creator: creatorId,
-      todo:todoId,
+      creator: req.user.uid,
+      todo: todoId,
     });
-    const commentSaved = await newComment.save();
 
-    const todo = await Todo.findById(todoId);
-    todo.comments.push(commentSaved._id);
-    await todo.save();
+    await Todo.findByIdAndUpdate(todoId, {
+      $push: { comments: createdComment._id },
+    });
 
     res.status(201).json({
       ok: true,
-      comment: commentSaved,
+      comment: createdComment,
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
+    res.status(500).json({
       ok: false,
-      msg: "Contact the administrator",
+      msg: 'Contact the administrator',
     });
   }
 };
 
 const getComments = async (req, res = response) => {
-  const comments = await Comment.find().populate("creator", "name");
   try {
+    const comments = await Comment.find().populate('creator', 'name');
     res.status(200).json({
       ok: true,
       comments,
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
+    res.status(500).json({
       ok: false,
-      msg: "Contact the administrator",
+      msg: 'Contact the administrator',
     });
   }
 };
 
 const deleteComment = async (req, res = response) => {
-  const commentId = req.params.id;
+  const { id } = req.params;
+
   try {
-    const comment = await Comment.findById(commentId);
+    const comment = await Comment.findById(id);
 
     if (!comment) {
       return res.status(404).json({
         ok: false,
-        msg: "no comment with this id was found",
+        msg: 'No comment with this id was found',
       });
     }
 
-    const todos = await Todo.find({ "table.comment1": commentId });
-
-    // Removes the comment from the list of comments for each found item
-    todos.forEach(async (todo) => {
-      const commentIndex = todo.comments.findIndex(
-        (comment) => comment == commentId
-      );
-      if (commentIndex !== -1) {
-        todo.comments.splice(commentIndex, 1);
-        await todo.save();
-      }
-    });
-
-    await Comment.findByIdAndDelete(commentId);
+    await Comment.findByIdAndDelete(id);
+    await Todo.updateOne({ _id: comment.todo }, { $pull: { comments: id } });
 
     res.status(200).json({
       ok: true,
@@ -94,7 +70,7 @@ const deleteComment = async (req, res = response) => {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Talk to the administrator",
+      msg: 'Talk to the administrator',
     });
   }
 };
