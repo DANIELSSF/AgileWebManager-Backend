@@ -1,7 +1,8 @@
 const express = require('express');
-const { dbConnection } = require('./databases/config');
-require('dotenv').config();
 const cors = require('cors');
+require('dotenv').config();
+
+const { dbConnection } = require('./databases/config');
 
 // Create express server
 const app = express();
@@ -16,15 +17,15 @@ app.use(express.static('public'));
 dbConnection();
 
 // Parse json objects
-app.use(express.json())
-
+app.use(express.json());
 
 //Routes
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/todos", require("./routes/todos"));
-app.use("/api/comments", require("./routes/comments"));
-app.use("/api/tables", require("./routes/table"));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/todos', require('./routes/todo'));
+app.use('/api/comments', require('./routes/comment'));
+app.use('/api/tables', require('./routes/table'));
+app.use('/api/users', require('./routes/user'));
 
-app.listen(process.env.PORT, ()=>{
-    console.log(`Server is running in the port: ${process.env.PORT}`);
-})
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running in the port: ${process.env.PORT}`);
+});

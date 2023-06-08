@@ -1,8 +1,8 @@
-const { response, request } = require("express");
-const { getName } = require("../helpers/getName");
-const { writefile } = require("../helpers/wirtteHistoy");
-const Table = require("../models/Table");
-const Todo = require("../models/Todo");
+const { response, request } = require('express');
+
+const { writefile } = require('../helpers/writteHistoy');
+const Table = require('../models/Table');
+const Todo = require('../models/Todo');
 
 const getTables = async (req, res = response) => {
   try {
@@ -15,68 +15,65 @@ const getTables = async (req, res = response) => {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Talk to the administrator",
+      msg: 'Talk to the administrator',
     });
   }
 };
 
 const createTable = async (req, res = response) => {
-  const table = new Table(req.body);
+  const { name, desc, date = new Date(), todos = [] } = req.body;
   try {
-    table.todos = [];
-    table.date = new Date();
-    const tableSaved = await table.save();
+    const createdTable = await Table.create({
+      name,
+      desc,
+      date,
+      todos,
+    });
 
-    const token = req.header("x-token");
-    const ipAddress = req.connection.remoteAddress;
     writefile({
-      ip: ipAddress,
-      user: getName(token),
-      date: new Date(),
-      operation: "Creo una tabla",
+      ip: req.connection.remoteAddress,
+      user: req.user.uid,
+      date,
+      operation: 'Create a table',
     });
 
     res.status(201).json({
       ok: true,
-      table: tableSaved,
+      table: createdTable,
     });
   } catch (error) {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Talk to the administrator",
+      msg: 'Talk to the administrator',
     });
   }
 };
 
 const deleteTable = async (req, res = response) => {
-  const tableId = req.params.id;
+  const { id } = req.params;
   try {
-    const table = await Table.findById(tableId);
+    const table = await Table.findById(id);
 
     if (!table) {
       return res.status(404).json({
         ok: false,
-        msg: "no table found with this id",
+        msg: 'No table found with this id',
       });
     }
 
     const todos = table.todos;
-
-    if (todos) {
-      todos.forEach(async (todo) => {
-        await Todo.findByIdAndDelete(todo);
-      });
+    if (todos && todos.length > 0) {
+      await Todo.deleteMany({ _id: { $in: todos } });
     }
-    await Table.findByIdAndDelete(tableId);
 
-    const token = req.header("x-token");
-    const ipAddress = req.connection.remoteAddress;
+    await Table.findByIdAndDelete(id);
+
     writefile({
-      ip: ipAddress,
-      user: getName(token),
+      ip: req.connection.remoteAddress,
+      user: req.user.uid,
       date: new Date(),
-      operation: "Elimino una tabla",
+      operation: 'Deleted a table',
     });
 
     res.status(200).json({
@@ -86,38 +83,33 @@ const deleteTable = async (req, res = response) => {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Talk to the administrator",
+      msg: 'Talk to the administrator',
     });
   }
 };
 
 const updateTable = async (req = request, res = response) => {
-  const tableId = req.params.id;
+  const { id } = req.params;
   try {
-    const table = await Table.findById(tableId);
+    const table = await Table.findById(id);
 
     if (!table) {
       return res.status(404).json({
         ok: false,
-        msg: "Table does not exist for this id",
+        msg: 'Table does not exist for this id',
       });
     }
 
-    const newTable = {
-      ...req.body,
-    };
-
-    const tableUpdate = await Table.findByIdAndUpdate(tableId, newTable, {
+    const updatedFields = { ...req.body };
+    const tableUpdate = await Table.findByIdAndUpdate(id, updatedFields, {
       new: true,
     });
 
-    const token = req.header("x-token");
-    const ipAddress = req.socket.remoteAddress;
     writefile({
-      ip: ipAddress,
-      user: getName(token),
+      ip: req.socket.remoteAddress,
+      user: req.user.uid,
       date: new Date(),
-      operation: "Actualizo una tabla",
+      operation: 'Updated a table',
     });
 
     res.json({
@@ -128,7 +120,7 @@ const updateTable = async (req = request, res = response) => {
     console.log(error);
     res.status(500).json({
       ok: false,
-      msg: "Talk to the administrator",
+      msg: 'Talk to the administrator',
     });
   }
 };
