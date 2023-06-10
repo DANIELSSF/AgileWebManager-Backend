@@ -1,5 +1,4 @@
 const { response, request } = require('express');
-const bcrypt = require('bcryptjs');
 
 const User = require('../models/User');
 
@@ -8,30 +7,8 @@ const {
   writefile,
   sendCode,
   verifyVerificationNumber,
+  isPasswordSame,
 } = require('../helpers');
-
-const verifyUser = async (req = request, res = response) => {
-  try {
-    const { phone, code } = req.body;
-
-    await verifyVerificationNumber({ phone, code });
-
-    const user = await User.findOne({ phone });
-    const token = await generateJWT(user);
-
-    return res.status(200).json({
-      ok: true,
-      user,
-      token,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      ok: false,
-      msg: 'the verification code is invalid',
-    });
-  }
-};
 
 const loginUser = async (req, res = response) => {
   const { email, password } = req.body;
@@ -39,10 +16,10 @@ const loginUser = async (req, res = response) => {
   try {
     let user = await User.findOne({ email });
 
-    if (!user || !bcrypt.compareSync(password, user.password)) {
+    if (!isPasswordSame(password, user.password)) {
       return res.status(400).json({
         ok: false,
-        msg: 'Incorrect email or password',
+        msg: 'Incorrect email / password',
       });
     }
     await sendCode(user.phone);
@@ -67,8 +44,31 @@ const loginUser = async (req, res = response) => {
   }
 };
 
+const verifyUser = async (req = request, res = response) => {
+  try {
+    const { phone, code } = req.body;
+
+    await verifyVerificationNumber({ phone, code });
+
+    const user = await User.findOne({ phone });
+    const token = await generateJWT(user.id);
+
+    return res.status(200).json({
+      ok: true,
+      user,
+      token,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      ok: false,
+      msg: 'the verification code is invalid',
+    });
+  }
+};
+
 const revalidateToken = async (req, res = response) => {
-  const token = await generateJWT(req.user);
+  const token = await generateJWT(req.user.id);
   res.json({
     ok: true,
     user: { ...req.user },
