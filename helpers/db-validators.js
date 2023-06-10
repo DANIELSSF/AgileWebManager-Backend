@@ -26,13 +26,15 @@ const checkUserExistsById = async (userId) => {
   await checkExistsById(User, userId, 'No user with this id was found');
 };
 
-const checkUserExistsByEmail = async (email) => {
+const checkUserExistsByEmail = async (email, shouldExist = false) => {
   const user = await Table.findOne({ email });
-  if (user) {
+
+  if (shouldExist && !user) {
+    throw new Error('Incorrect password / email');
+  } else if (!shouldExist && user) {
     throw new Error('User exists with that email address');
   }
 };
-
 
 const validStatus = new Set(['start', 'progress', 'done']);
 
@@ -40,7 +42,7 @@ module.exports = {
   checkCommentExistsById,
   checkTodoExistsById,
   checkTableExistsById,
-  validStatus,
   checkUserExistsByEmail,
   checkUserExistsById,
+  validStatus,
 };
