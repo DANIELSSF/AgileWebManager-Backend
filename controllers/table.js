@@ -1,6 +1,7 @@
 const { response, request } = require('express');
 
-const { writefile } = require('../helpers/writteHistoy');
+const { writefile } = require('../helpers');
+
 const Table = require('../models/Table');
 const Todo = require('../models/Todo');
 
@@ -32,7 +33,7 @@ const createTable = async (req, res = response) => {
 
     writefile({
       ip: req.connection.remoteAddress,
-      user: req.user.uid,
+      user: req.user.id,
       date,
       operation: 'Create a table',
     });
@@ -50,34 +51,24 @@ const createTable = async (req, res = response) => {
   }
 };
 
-const deleteTable = async (req, res = response) => {
+const updateTable = async (req = request, res = response) => {
   const { id } = req.params;
   try {
-    const table = await Table.findById(id);
-
-    if (!table) {
-      return res.status(404).json({
-        ok: false,
-        msg: 'No table found with this id',
-      });
-    }
-
-    const todos = table.todos;
-    if (todos && todos.length > 0) {
-      await Todo.deleteMany({ _id: { $in: todos } });
-    }
-
-    await Table.findByIdAndDelete(id);
-
-    writefile({
-      ip: req.connection.remoteAddress,
-      user: req.user.uid,
-      date: new Date(),
-      operation: 'Deleted a table',
+    const updatedFields = { ...req.body };
+    const tableUpdate = await Table.findByIdAndUpdate(id, updatedFields, {
+      new: true,
     });
 
-    res.status(200).json({
+    writefile({
+      ip: req.socket.remoteAddress,
+      user: req.user.id,
+      date: new Date(),
+      operation: 'Updated a table',
+    });
+
+    res.json({
       ok: true,
+      table: tableUpdate,
     });
   } catch (error) {
     console.log(error);
@@ -88,33 +79,26 @@ const deleteTable = async (req, res = response) => {
   }
 };
 
-const updateTable = async (req = request, res = response) => {
+const deleteTable = async (req, res = response) => {
   const { id } = req.params;
   try {
     const table = await Table.findById(id);
-
-    if (!table) {
-      return res.status(404).json({
-        ok: false,
-        msg: 'Table does not exist for this id',
-      });
+    const todos = table.todos;
+    if (todos && todos.length > 0) {
+      await Todo.deleteMany({ _id: { $in: todos } });
     }
 
-    const updatedFields = { ...req.body };
-    const tableUpdate = await Table.findByIdAndUpdate(id, updatedFields, {
-      new: true,
-    });
+    await Table.findByIdAndDelete(id);
 
     writefile({
-      ip: req.socket.remoteAddress,
-      user: req.user.uid,
+      ip: req.connection.remoteAddress,
+      user: req.user.id,
       date: new Date(),
-      operation: 'Updated a table',
+      operation: 'Deleted a table',
     });
 
-    res.json({
+    res.status(200).json({
       ok: true,
-      table: tableUpdate,
     });
   } catch (error) {
     console.log(error);
