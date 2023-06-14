@@ -1,29 +1,59 @@
 /* Routes for boards
-    host+/api/tables
+    /api/tables
 */
 
 const { Router } = require('express');
-const { getTables, createTable, updateTable, deleteTable } = require('../controllers/table');
+const { check } = require('express-validator');
+
+const {
+  getTables,
+  createTable,
+  updateTable,
+  deleteTable,
+} = require('../controllers/table');
+
+const { validateJWT, validateFields, isAdminRole } = require('../middlewares');
+
+const { checkTableExistsById } = require('../helpers/db-validators');
+
 const route = Router();
 
-route.get(
-    "/",
-    getTables
-);
+route.get('/', validateJWT, getTables);
 
 route.post(
-    "/",
-    createTable
+  '/',
+  [
+    validateJWT,
+    isAdminRole,
+    check('name', 'The name is required').not().isEmpty(),
+    check('desc', 'The description is required').not().isEmpty(),
+    validateFields,
+  ],
+  createTable
 );
 
 route.put(
-    "/:id",
-    updateTable 
+  '/:id',
+  [
+    validateJWT,
+    isAdminRole,
+    check('id', 'Not valid ID').isMongoId(),
+    check('id').custom(checkTableExistsById),
+    validateFields,
+  ],
+  updateTable
 );
 
 route.delete(
-    "/:id",
-    deleteTable 
+  '/:id',
+  [
+    validateJWT,
+    isAdminRole,
+    check('id', 'Not valid ID').isMongoId(),
+    check('id').custom(checkTableExistsById),
+    validateFields,
+  ],
+  deleteTable
 );
 
 module.exports = route;

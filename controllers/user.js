@@ -1,8 +1,8 @@
 const { response, request } = require('express');
-const bcrypt = require('bcryptjs');
 
 const User = require('../models/User');
-const { writefile } = require('../helpers');
+
+const { writefile, hashPassword } = require('../helpers');
 
 const createUser = async (req, res = response) => {
   const {
@@ -15,25 +15,15 @@ const createUser = async (req, res = response) => {
   } = req.body;
 
   try {
-    let user = await User.findOne({ email });
+    const user = new User({ name, email, password, role, status, phone });
 
-    if (user) {
-      return res.status(400).json({
-        ok: false,
-        msg: 'user exists with that email address',
-      });
-    }
-
-    user = new User({ name, email, password, role, status, phone });
-
-    const salt = bcrypt.genSaltSync();
-    user.password = bcrypt.hashSync(password, salt);
+    user.password = hashPassword(password);
 
     await user.save();
 
     writefile({
       ip: req.socket.remoteAddress,
-      user: req.user.name || name,
+      user: name,
       date: new Date(),
       operation: 'Create a user',
     });
@@ -70,15 +60,6 @@ const getUsers = async (req, res = response) => {
 const deleteUser = async (req, res = response) => {
   const { id } = req.params;
   try {
-    const user = await User.findById(id);
-
-    if (!user) {
-      return res.status(404).json({
-        ok: false,
-        msg: 'no user with this id was found',
-      });
-    }
-
     await User.findByIdAndDelete(id);
 
     writefile({
@@ -90,7 +71,6 @@ const deleteUser = async (req, res = response) => {
 
     res.status(200).json({
       ok: true,
-      user,
     });
   } catch (error) {
     console.log(error);
@@ -102,33 +82,9 @@ const deleteUser = async (req, res = response) => {
 };
 
 const updateUser = async (req = request, res = response) => {
+  console.log(req.body);
   const { id } = req.params;
   try {
-    let user = await User.findById(id);
-
-    if (!user) {
-      return res.status(404).json({
-        ok: false,
-        msg: 'No user with this id was found',
-      });
-    }
-
-    if (req.body.password) {
-      if (bcrypt.compareSync(req.body.password, user.password)) {
-        return res.status(400).json({
-          ok: false,
-          msg: 'Use a different password than one already used on this account.',
-        });
-      } else {
-        const salt = bcrypt.genSaltSync();
-        const newPassword = bcrypt.hashSync(req.body.password, salt);
-        req.body.password = newPassword;
-        if (user.status == 'new') {
-          req.body.status = 'member';
-        }
-      }
-    }
-
     const existingUser = {
       ...req.body,
     };
@@ -141,7 +97,7 @@ const updateUser = async (req = request, res = response) => {
       ip: req.socket.remoteAddress,
       user: req.user.name,
       date: new Date(),
-      operation: id === req.user.uid ? 'Update your user' : 'Update a user',
+      operation: id === req.user.id ? 'Update your user' : 'Update a user',
     });
 
     res.status(200).json({

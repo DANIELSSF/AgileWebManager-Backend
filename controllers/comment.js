@@ -10,7 +10,7 @@ const createComment = async (req, res = response) => {
     const createdComment = await Comment.create({
       comment,
       date: new Date(),
-      creator: req.user.uid,
+      creator: req.user.id,
       todo: todoId,
     });
 
@@ -52,14 +52,7 @@ const deleteComment = async (req, res = response) => {
 
   try {
     const comment = await Comment.findById(id);
-
-    if (!comment) {
-      return res.status(404).json({
-        ok: false,
-        msg: 'No comment with this id was found',
-      });
-    }
-
+    
     await Comment.findByIdAndDelete(id);
     await Todo.updateOne({ _id: comment.todo }, { $pull: { comments: id } });
 

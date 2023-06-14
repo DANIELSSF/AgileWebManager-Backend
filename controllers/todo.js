@@ -39,13 +39,6 @@ const createTodo = async (req, res = response) => {
     comments = [],
   } = req.body;
 
-  if (!tableId) {
-    return res.status(404).json({
-      ok: false,
-      msg: 'Table ID not found.',
-    });
-  }
-
   try {
     const newTodo = await Todo.create({
       name,
@@ -62,7 +55,7 @@ const createTodo = async (req, res = response) => {
 
     writefile({
       ip: req.connection.remoteAddress,
-      user: req.user.uid,
+      user: req.user.id,
       date: new Date(),
       operation: 'Created a todo',
     });
@@ -84,20 +77,13 @@ const updateTodo = async (req = request, res = response) => {
   const { id } = req.params;
 
   try {
-    const updatedTodo = await Todo.findByIdAndUpdate(id, req.body, {
+    await Todo.findByIdAndUpdate(id, req.body, {
       new: true,
     });
 
-    if (!updatedTodo) {
-      return res.status(404).json({
-        ok: false,
-        msg: 'Todo does not exist for this id',
-      });
-    }
-
     writefile({
       ip: req.socket.remoteAddress,
-      user: req.user.uid,
+      user: req.user.id,
       date: new Date(),
       operation: 'Updated a todo',
     });
@@ -120,12 +106,6 @@ const deleteTodo = async (req, res = response) => {
 
   try {
     const todo = await Todo.findById(id);
-    if (!todo) {
-      return res.status(404).json({
-        ok: false,
-        msg: 'Todo does not exist for this id',
-      });
-    }
 
     const comments = todo.comments;
     if (comments && comments.length > 0) {
@@ -136,7 +116,7 @@ const deleteTodo = async (req, res = response) => {
 
     writefile({
       ip: req.connection.remoteAddress,
-      user: req.user.uid,
+      user: req.user.id,
       date: new Date(),
       operation: 'Deleted a todo',
     });
