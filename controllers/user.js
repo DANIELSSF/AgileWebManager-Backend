@@ -5,17 +5,17 @@ const User = require('../models/User');
 const { writefile, hashPassword } = require('../helpers');
 
 const createUser = async (req, res = response) => {
-  const {
-    name,
-    email,
-    password,
-    role = 'readOnly',
-    status = 'new',
-    phone = '',
-  } = req.body;
+  const { name, email, password, status = 'new', phone = '' } = req.body;
 
   try {
-    const user = new User({ name, email, password, role, status, phone });
+    const user = new User({
+      name,
+      email,
+      password,
+      role: 'readOnly',
+      status,
+      phone,
+    });
 
     user.password = hashPassword(password);
 
