@@ -22,6 +22,14 @@ const loginUser = async (req, res = response) => {
         msg: 'Incorrect email / password',
       });
     }
+
+    if (!user.phone) {
+      res.status(400).json({
+        ok: false,
+        msg: 'The user does not have a number',
+      });
+    }
+
     await sendCode(user.phone);
 
     writefile({
