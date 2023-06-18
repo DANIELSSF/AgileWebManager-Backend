@@ -23,6 +23,17 @@ const isCreatorOrAdmin = async (req, res, next) => {
   next();
 };
 
+const isNewUser = async (req, res, next) => {
+  const { uid } = req.body;
+  const user = await User.findById(uid);
+
+  if (user.status !== 'new') {
+    return sendInsufficientPermissionsResponse(res);
+  }
+
+  next();
+};
+
 const sendInsufficientPermissionsResponse = (res) => {
   return res.status(403).json({
     ok: false,
@@ -38,4 +49,4 @@ const isUserCreatorOrAdmin = (user, currentUser) => {
   return user.id == currentUser.id || currentUser.role === 'admin';
 };
 
-module.exports = { isCreatorComment, isCreatorOrAdmin };
+module.exports = { isCreatorComment, isCreatorOrAdmin ,isNewUser};
