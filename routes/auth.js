@@ -9,9 +9,16 @@ const {
   loginUser,
   revalidateToken,
   verifyUser,
+  sendCodeForChangeNumber,
 } = require('../controllers/auth');
 
-const { validateJWT, validateFields } = require('../middlewares');
+const { validateJWT, validateFields, isNewUser } = require('../middlewares');
+
+const {
+  checkUserExistsById,
+  checkUserExistsByEmail,
+} = require('../helpers/db-validators');
+
 const router = Router();
 
 router.post(
@@ -34,6 +41,19 @@ router.post(
     validateFields,
   ],
   verifyUser
+);
+
+router.post(
+  '/number',
+  [
+    check('phone', 'The number phone is required').not().isEmpty(),
+    check('uid', 'The uid is required').not().isEmpty(),
+    check('uid', 'Is not valid UID').isMongoId(),
+    check('uid').custom(checkUserExistsById),
+    validateFields,
+    isNewUser,
+  ],
+  sendCodeForChangeNumber
 );
 
 router.get('/renew', validateJWT, revalidateToken);
