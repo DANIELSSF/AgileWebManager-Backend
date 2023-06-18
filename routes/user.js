@@ -33,8 +33,8 @@ router.post(
   [
     check('name', 'The name is required').not().isEmpty(),
     check('email', 'The email is required').isEmail(),
-    check('email').custom(checkUserExistsByEmail),
-    check('password', 'The password is required').isLength({ min: 6 }),
+    check('email').custom((email) => checkUserExistsByEmail(email)),
+    check('password', 'The password must be longer than 6 characters').isLength({ min: 6 }),
     check('phone', 'The phone is required').not().isEmpty(),
     validateFields,
   ],

@@ -27,6 +27,7 @@ const checkUserExistsById = async (userId) => {
 };
 
 const checkUserExistsByEmail = async (email, shouldExist = false) => {
+  console.log({ email, shouldExist });
   const user = await Table.findOne({ email });
 
   if (shouldExist && !user) {
