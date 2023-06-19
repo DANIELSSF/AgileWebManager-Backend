@@ -98,7 +98,25 @@ const sendCodeForChangeNumber = async (req = request, res = response) => {
     console.log(error);
     res.status(400).json({
       ok: false,
-      msg: 'the verification code is invalid',
+      msg: 'Error sending code',
+    });
+  }
+};
+
+const reSendCode = async (req = request, res = response) => {
+  try {
+    const { phone } = req.body;
+
+    await sendCode(phone);
+
+    return res.status(200).json({
+      ok: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      ok: false,
+      msg: 'Error sending code',
     });
   }
 };
@@ -121,4 +139,5 @@ module.exports = {
   verifyUser,
   revalidateToken,
   sendCodeForChangeNumber,
+  reSendCode,
 };
