@@ -10,6 +10,7 @@ const {
   revalidateToken,
   verifyUser,
   sendCodeForChangeNumber,
+  reSendCode,
 } = require('../controllers/auth');
 
 const { validateJWT, validateFields, isNewUser } = require('../middlewares');
@@ -54,6 +55,15 @@ router.post(
     isNewUser,
   ],
   sendCodeForChangeNumber
+);
+
+router.post(
+  '/sendcode',
+  [
+    check('phone', 'The number phone is required').not().isEmpty(),
+    validateFields,
+  ],
+  reSendCode
 );
 
 router.get('/renew', validateJWT, revalidateToken);
