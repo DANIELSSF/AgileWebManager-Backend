@@ -59,11 +59,14 @@ const verifyUser = async (req = request, res = response) => {
     await verifyVerificationNumber({ phone, code });
 
     const user = await User.findOne({ phone });
+    if (user.status === 'new') {
+      user.status = 'verified';
+      await user.save();
+    }
     const token = await generateJWT(user.id);
 
     return res.status(200).json({
       ok: true,
-      user,
       token,
     });
   } catch (error) {
@@ -75,11 +78,55 @@ const verifyUser = async (req = request, res = response) => {
   }
 };
 
+const sendCodeForChangeNumber = async (req = request, res = response) => {
+  try {
+    const { phone, uid } = req.body;
+
+    await sendCode(phone);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      uid,
+      { phone },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      ok: true,
+      phone: updatedUser.phone,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      ok: false,
+      msg: 'Invalid Number',
+    });
+  }
+};
+
+const reSendCode = async (req = request, res = response) => {
+  try {
+    const { phone } = req.body;
+
+    await sendCode(phone);
+
+    return res.status(200).json({
+      ok: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      ok: false,
+      msg: 'Error sending code',
+    });
+  }
+};
+
 const revalidateToken = async (req, res = response) => {
   const token = await generateJWT(req.user.id);
+
   res.json({
     ok: true,
-    user: { ...req.user },
+    user: req.user,
     token,
   });
 };
@@ -88,4 +135,6 @@ module.exports = {
   loginUser,
   verifyUser,
   revalidateToken,
+  sendCodeForChangeNumber,
+  reSendCode,
 };

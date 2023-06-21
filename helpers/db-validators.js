@@ -27,7 +27,7 @@ const checkUserExistsById = async (userId) => {
 };
 
 const checkUserExistsByEmail = async (email, shouldExist = false) => {
-  const user = await Table.findOne({ email });
+  const user = await User.findOne({ email });
 
   if (shouldExist && !user) {
     throw new Error('Incorrect password / email');

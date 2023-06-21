@@ -5,7 +5,7 @@ const User = require('../models/User');
 const { writefile, hashPassword } = require('../helpers');
 
 const createUser = async (req, res = response) => {
-  const { name, email, password, status = 'new', phone = '' } = req.body;
+  const { name, email, password, phone } = req.body;
 
   try {
     const user = new User({
@@ -13,7 +13,7 @@ const createUser = async (req, res = response) => {
       email,
       password,
       role: 'readOnly',
-      status,
+      status: 'new',
       phone,
     });
 
