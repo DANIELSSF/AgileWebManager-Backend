@@ -122,14 +122,11 @@ const reSendCode = async (req = request, res = response) => {
 };
 
 const revalidateToken = async (req, res = response) => {
-  const uid = req.user.id;
-  const token = await generateJWT(uid);
-
-  const user = await User.findById(uid);
+  const token = await generateJWT(req.user.id);
 
   res.json({
     ok: true,
-    user,
+    user: req.user,
     token,
   });
 };
