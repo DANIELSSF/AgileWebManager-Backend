@@ -41,6 +41,7 @@ router.post(
       if (!validStatus.has(status)) {
         throw new Error('Invalid status');
       }
+      return true;
     }),
     validateFields,
   ],
@@ -60,6 +61,7 @@ router.put(
         if (!validStatus.has(status)) {
           throw new Error('Invalid status');
         }
+        return true;
       }),
     validateFields,
   ],
